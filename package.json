@@ -4,7 +4,7 @@
   "description": "JS Chip 8 emulator",
   "main": "index.js",
   "scripts": {
-    "start" : "live-server",
+    "start": "live-server",
     "test": "jest"
   },
   "author": "Florent Baudon",

@@ -1,3 +1,5 @@
+import {CPUInstructionsList} from './CPUInstructions.js'
+
 export class CPU {
     constructor () {
         this.Memory = new Uint8Array(4096)
@@ -9,32 +11,25 @@ export class CPU {
         //Timer
         this.DT = 0 //Delay timer
         this.ST = 0 //Sound timer
-    }
 
+        /** Devices **/
+        this._renderer = null
+        this._keyboard = null
+    }
+    //Setting devices ref like renderer, keyboard, audio etc...
+    SetDevices(renderer, keyboard){
+        this._renderer = renderer
+        this._keyboard = keyboard
+    }
     ExecuteOpcode (opcode) {
         this.PC += 2 // 16 bits jump
 
-        switch (opcode & 0xF000) {
-            case 0x1000:
-                this.PC = (opcode & 0x0FFF);
-                return;
-                break;
-            default:
+        //Find instruction in list according to opcode pattern
+        let instruction = CPUInstructionsList.find( e =>  (opcode & e.mask) == e.pattern)
 
-        }
-
-        let x = (opcode & 0x0F00) >> 8
-        let y = (opcode & 0x00F0) >> 4
-
-        switch (opcode & 0xF00F) {
-
-            case 0x8004:
-                return (x+y);
-                break;
-            default:
-
-        }
+        //Execute instruction of finded opcode
+        let result = instruction.operation(opcode, this)
+        //Return result (for testing purpose)
+        return result
     }
 }
-
-// module.exports = CPU

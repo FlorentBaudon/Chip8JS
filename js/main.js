@@ -11,10 +11,13 @@ var keyboard
 var clock
 
 function init(){
-    clock = new Clock()
     cpu = new CPU()
+
+    clock = new Clock()
     renderer = new Renderer(10)
     keyboard = new Keyboard();
+
+    cpu.SetDevices(renderer, keyboard)
 
     renderer.TestRender()
 
