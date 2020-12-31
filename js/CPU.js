@@ -4,7 +4,7 @@ export class CPU {
     constructor () {
         this.Memory = new Uint8Array(4096)
         this.PC = 0x200 //Program counter, range 0x000 to 0x1FF is reserved
-        this.Register = new Uint8Array(16) // Chip 8 have 16  8bits registers (V0 to VF)
+        this.Registers = new Uint8Array(16) // Chip 8 have 16  8bits registers (V0 to VF)
         this.I = 0 //16bit register used as memory address pointer
         this.Stack = new Uint16Array(16)
         this.SP = -1 //Stack pointer
@@ -28,8 +28,6 @@ export class CPU {
         let instruction = CPUInstructionsList.find( e =>  (opcode & e.mask) == e.pattern)
 
         //Execute instruction of finded opcode
-        let result = instruction.operation(opcode, this)
-        //Return result (for testing purpose)
-        return result
+        instruction.operation(opcode, this)
     }
 }

@@ -1,15 +1,17 @@
 export class Renderer {
-    constructor (scale) {
-
+    constructor (scale, headless = false) {
+        this.headless = headless;
         this.cols = 64
         this.rows = 32
 
-        this.scale = scale
-        this.canvas = document.querySelector('canvas')
-        this.ctx = this.canvas.getContext('2d')
+        if(!this.headless){
+            this.scale = scale
+            this.canvas = document.querySelector('canvas')
+            this.ctx = this.canvas.getContext('2d')
 
-        this.canvas.width = this.scale * this.cols
-        this.canvas.height = this.scale * this.rows
+            this.canvas.width = this.scale * this.cols
+            this.canvas.height = this.scale * this.rows
+        }
 
         this.display = new Array(this.cols * this.rows)
     }
@@ -38,6 +40,9 @@ export class Renderer {
     }
 
     Render() {
+        if(this.headless)
+            return;
+
         // Clears the display every render cycle. Typical for a render loop.
          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
 
