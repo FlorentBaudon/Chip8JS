@@ -79,10 +79,77 @@ test("4xkk - SNE Vx, byte - Skip next instruction if Vx != kk", () => {
     expect(cpu.PC).toBe(0x204)
 })
 
+test("5xy0 - SE Vx, Vy - Skip next instruction if Vx = Vy", () => {
+    //If value is equal we don't skip next instruction
+    cpu.PC = 0x200
+    cpu.Registers[0x1] = 0x33
+    cpu.Registers[0xA] = 0x33
 
+    cpu.ExecuteOpcode(0x51A0)
 
+    expect(cpu.PC).toBe(0x204)
 
+    //If value is not equal we skip next instruction
+    cpu.PC = 0x200
+    cpu.Registers[0x3] = 0x31
+    cpu.Registers[0xA] = 0x33
 
+    cpu.ExecuteOpcode(0x53A0)
+
+    expect(cpu.PC).toBe(0x202)
+})
+
+test("6xkk - LD Vx, byte - Set Vx = kk", () => {
+    cpu.Registers[0xA] = 0x12
+
+    cpu.ExecuteOpcode(0x6AFE)
+
+    expect(cpu.Registers[0xA]).toBe(0xFE)
+})
+
+test("7xkk - ADD Vx, byte - Set Vx = Vx + kk", () => {
+    cpu.Registers[0xB] = 0x12
+
+    cpu.ExecuteOpcode(0x7B33)
+
+    expect(cpu.Registers[0xB]).toBe(0x12 + 0x33)
+})
+
+test("8xy0 - LD Vx, Vy - Set Vx = Vy.", () => {
+    cpu.Registers[0xB] = 0x12
+    cpu.Registers[0x5] = 0x66
+
+    cpu.ExecuteOpcode(0x8B50)
+
+    expect(cpu.Registers[0xB]).toBe(0x66)
+})
+
+test("8xy1 - OR Vx, Vy - Set Vx = Vx OR Vy", () => {
+    cpu.Registers[0x4] = 0b1010
+    cpu.Registers[0x5] = 0b1100
+
+    cpu.ExecuteOpcode(0x8451)
+
+    expect(cpu.Registers[0x4]).toBe(0b1110)
+})
+
+test("8xy2 - AND Vx, Vy - Set Vx = Vx AND Vy", () => {
+    cpu.Registers[0x4] = 0b1010
+    cpu.Registers[0x5] = 0b1100
+
+    cpu.ExecuteOpcode(0x8452)
+
+    expect(cpu.Registers[0x4]).toBe(0b1000)
+})
+
+test("8xy3 - XOR Vx, Vy - Set Vx = Vx XOR Vy", () => {
+    cpu.Registers[0x4] = 0b1010
+    cpu.Registers[0x5] = 0b1100
+
+    cpu.ExecuteOpcode(0x8453)
+
+    expect(cpu.Registers[0x4]).toBe(0b0110)
+})
 
 test("8xy4 - ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry", () => {
 
@@ -90,7 +157,6 @@ test("8xy4 - ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry", () => {
     cpu.Registers[5] = 200
     cpu.Registers[0xB] = 58
     cpu.ExecuteOpcode(0x85B4)
-    console.log(cpu.Registers[5]);
 
     expect(cpu.Registers[5]).toBe(2)
     expect(cpu.Registers[0xF]).toBe(1)
@@ -101,4 +167,75 @@ test("8xy4 - ADD Vx, Vy - Set Vx = Vx + Vy, set VF = carry", () => {
     cpu.ExecuteOpcode(0x8234)
     expect(cpu.Registers[2]).toBe(10)
     expect(cpu.Registers[0xF]).toBe(0)
+})
+
+test("8xy5 - SUB Vx, Vy - Set Vx = Vx - Vy, set VF = NOT borrow", () => {
+
+    //Test with NOT borrow
+    cpu.Registers[5] = 20
+    cpu.Registers[0xB] = 3
+    cpu.ExecuteOpcode(0x85B5)
+
+    expect(cpu.Registers[5]).toBe(17)
+    expect(cpu.Registers[0xF]).toBe(1)
+
+    //Test with borrow
+    cpu.Registers[2] = 4
+    cpu.Registers[3] = 6
+    cpu.ExecuteOpcode(0x8235)
+    expect(cpu.Registers[2]).toBe(254)
+    expect(cpu.Registers[0xF]).toBe(0)
+})
+
+test("8xy6 - SHR Vx {, Vy} - Set Vx = Vx SHR 1", () => {
+
+    //Test with even number
+    cpu.Registers[0xA] = 20
+    cpu.ExecuteOpcode(0x8A06)
+
+    expect(cpu.Registers[0xA]).toBe(10)
+    expect(cpu.Registers[0xF]).toBe(0)
+
+    //Test with odd number
+    cpu.Registers[0xA] = 31
+    cpu.ExecuteOpcode(0x8A06)
+
+    expect(cpu.Registers[0xA]).toBe(15)
+    expect(cpu.Registers[0xF]).toBe(1)
+})
+
+test("8xy7 - SUBN Vx, Vy - Set Vx = Vy - Vx, set VF = NOT borrow", () => {
+
+    //Test with NOT borrow
+    cpu.Registers[5] = 20
+    cpu.Registers[0xB] = 3
+    cpu.ExecuteOpcode(0x85B7)
+
+    expect(cpu.Registers[5]).toBe(239)
+    expect(cpu.Registers[0xF]).toBe(0)
+
+    //Test with borrow
+    cpu.Registers[2] = 4
+    cpu.Registers[3] = 6
+    cpu.ExecuteOpcode(0x8237)
+    expect(cpu.Registers[2]).toBe(2)
+    expect(cpu.Registers[0xF]).toBe(1)
+})
+
+test("8xyE - SHL Vx {, Vy} - Set Vx = Vx SHL 1", () => {
+
+    //Test with even number
+    cpu.Registers[0xA] = 20
+    cpu.ExecuteOpcode(0x8A0E)
+
+    expect(cpu.Registers[0xA]).toBe(40)
+    expect(cpu.Registers[0xF]).toBe(0)
+
+    //Test with odd number
+    cpu.Registers[0xA] = 0x98
+
+    cpu.ExecuteOpcode(0x8A0E)
+
+    expect(cpu.Registers[0xA]).toBe(48)
+    expect(cpu.Registers[0xF]).toBe(1)
 })
