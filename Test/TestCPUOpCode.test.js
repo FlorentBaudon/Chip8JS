@@ -325,3 +325,155 @@ test("Dxyn - DRW Vx, Vy, nibble - Display n-byte sprite starting at memory locat
         }
     }
 })
+
+test("Ex9E - SKP Vx - Skip next instruction if key with the value of Vx is pressed", () => {
+    cpu.PC = 0x200
+    cpu.Registers[0xC] = 2
+    keyboard._keyCode = 2
+
+    cpu.ExecuteOpcode(0xEC9E)
+    expect(cpu.PC).toBe(0x204)
+
+    cpu.PC = 0x200
+    cpu.Registers[0xC] = 2
+    keyboard._keyCode = 3
+
+    cpu.ExecuteOpcode(0xEC9E)
+    expect(cpu.PC).toBe(0x202)
+})
+
+test("ExA1 - SKNP Vx - Skip next instruction if key with the value of Vx is not pressed.", () => {
+    cpu.PC = 0x200
+    cpu.Registers[0xC] = 2
+    keyboard._keyCode = 1
+
+    cpu.ExecuteOpcode(0xECA1)
+    expect(cpu.PC).toBe(0x204)
+
+    cpu.PC = 0x200
+    cpu.Registers[0xC] = 2
+    keyboard._keyCode = 2
+
+    cpu.ExecuteOpcode(0xECA1)
+    expect(cpu.PC).toBe(0x202)
+})
+
+test("Fx07 - LD Vx, DT - Set Vx = delay timer value", () => {
+    cpu.DT = 15
+    cpu.Registers[0x8] = 0
+
+    cpu.ExecuteOpcode(0xF807)
+
+    expect(cpu.Registers[0x8]).toBe(15)
+})
+
+test("Fx0A - LD Vx, K - Wait for a key press, store the value of the key in Vx", () => {
+    //a key is pressed
+    keyboard._keyCode = 8
+    cpu.Registers[0x6] = 0
+    cpu.PC = 0x200
+
+    cpu.ExecuteOpcode(0xF60A)
+
+    expect(cpu.PC).toBe(0x202)
+    expect(cpu.Registers[0x6]).toBe(keyboard._keyCode)
+
+    //No Key pressed
+    keyboard._keyCode = 0
+    cpu.Registers[0x6] = 0
+    cpu.PC = 0x200
+
+    cpu.ExecuteOpcode(0xF60A)
+
+    expect(cpu.PC).toBe(0x200)
+    expect(cpu.Registers[0x6]).toBe(0)
+})
+
+test("Fx15 - LD DT, Vx - Set delay timer = Vx", () => {
+    cpu.Registers[0x5] = 8
+
+    cpu.ExecuteOpcode(0xF515)
+
+    expect(cpu.DT).toBe(8)
+})
+
+test("Fx18 - LD ST, Vx - Set sound timer = Vx", () => {
+    cpu.Registers[0xD] = 26
+
+    cpu.ExecuteOpcode(0xFD18)
+
+    expect(cpu.ST).toBe(26)
+})
+
+test("Fx1E - ADD I, Vx - Set I = I + Vx", () => {
+    cpu.I = 512
+    cpu.Registers[0xE] = 136
+
+    cpu.ExecuteOpcode(0xFE1E)
+
+    expect(cpu.I).toBe(648)
+})
+
+test("Fx29 - LD F, Vx - Set I = location of sprite for digit Vx", () => {
+    cpu.I = 0x200
+    cpu.Registers[0x3] = 3 //get 3th font stored on begin of memory
+
+    cpu.ExecuteOpcode(0xF329)
+
+    expect(cpu.I).toBe(3 * 5) //font sprite are 5 bytes long
+})
+
+test("Fx33 - LD B, Vx - Store BCD representation of Vx in memory locations I, I+1, and I+2", () => {
+    cpu.I = 0x300
+    cpu.Registers[0x2] = 123
+
+    cpu.ExecuteOpcode(0xF233)
+
+    expect(cpu.Memory[0x300]).toBe(1)
+    expect(cpu.Memory[0x301]).toBe(2)
+    expect(cpu.Memory[0x302]).toBe(3)
+})
+
+test("Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at location I", () => {
+    cpu.I = 0x300
+    cpu.Registers[0x0] = 6
+    cpu.Registers[0x1] = 68
+    cpu.Registers[0x2] = 213
+    cpu.Registers[0x3] = 100
+    cpu.Registers[0x4] = 128
+
+    cpu.ExecuteOpcode(0xF455)
+
+    expect(cpu.I).toBe(0x300 + 5)
+    expect(cpu.Memory[0x300]).toBe(6)
+    expect(cpu.Memory[0x301]).toBe(68)
+    expect(cpu.Memory[0x302]).toBe(213)
+    expect(cpu.Memory[0x303]).toBe(100)
+    expect(cpu.Memory[0x304]).toBe(128)
+})
+
+test("Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at location I.", () => {
+    cpu.Registers[0x0] = 0
+    cpu.Registers[0x1] = 0
+    cpu.Registers[0x2] = 0
+    cpu.Registers[0x3] = 0
+    cpu.Registers[0x4] = 0
+
+    cpu.I = 0x300
+    cpu.Memory[0x300] = 6
+    cpu.Memory[0x301] = 68
+    cpu.Memory[0x302] = 213
+    cpu.Memory[0x303] = 100
+    cpu.Memory[0x304] = 128
+
+    cpu.ExecuteOpcode(0xF465)
+
+    expect(cpu.I).toBe(0x300 + 5)
+    expect(cpu.Registers[0x0]).toBe(6)
+    expect(cpu.Registers[0x1]).toBe(68)
+    expect(cpu.Registers[0x2]).toBe(213)
+    expect(cpu.Registers[0x3]).toBe(100)
+    expect(cpu.Registers[0x4]).toBe(128)
+
+
+})

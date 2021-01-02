@@ -33,7 +33,6 @@ export class Renderer {
         return !this.display[pixelIndex]
     }
 
-    //doesn't work, this.display contains only undefined values, don't know why...
     GetPixel(x, y) {
 
         x %= this.cols
@@ -57,7 +56,6 @@ export class Renderer {
 
         // Clears the display every render cycle. Typical for a render loop.
          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
-         console.log( " - " + this.GetPixel(0,0));
 
          // Loop through our display array
          for (let i = 0; i < this.cols * this.rows; i++) {

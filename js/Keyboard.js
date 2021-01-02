@@ -20,12 +20,20 @@ export class Keyboard {
 
         }
 
-        window.addEventListener('keydown', this.OnKeyDown.bind(this), false);
+        this._keyCode = 0
+        window.addEventListener('keydown', this.OnKeyDown.bind(this), false)
+        window.addEventListener('keyup', this.OnKeyUp.bind(this), false)
+    }
+
+    GetKey() {
+        return this._keyCode
     }
 
     OnKeyDown (event) {
-        var keyCode = event.which
-        console.log(this.KeyMap[keyCode]);
+        this._keyCode = this.KeyMap[event.which]
+    }
 
+    OnKeyUp (event) {
+        this._keyCode = 0
     }
 }

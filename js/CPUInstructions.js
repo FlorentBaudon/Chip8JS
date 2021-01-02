@@ -244,6 +244,7 @@ const CPUInstructionsList = [
 
             let x = cpu.Registers[vx]
             let y = cpu.Registers[vy]
+            cpu.Registers[0xF] = 0
 
             let nBytes = (opcode & 0x000F)
 
@@ -264,6 +265,137 @@ const CPUInstructionsList = [
             }
         }
     },
+    {
+        mnemonic : 'Ex9E - SKP Vx',
+        mask : 0xF0FF,
+        pattern : 0xE09E,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+
+            let jump = (cpu.Registers[vx] == cpu._keyboard.GetKey()) ? 2 : 0
+            cpu.PC += jump
+
+        }
+    },
+    {
+        mnemonic : 'ExA1 - SKNP Vx',
+        mask : 0xF0FF,
+        pattern : 0xE0A1,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+
+            let jump = (cpu.Registers[vx] != cpu._keyboard.GetKey()) ? 2 : 0
+            cpu.PC += jump
+
+        }
+    },
+    {
+        mnemonic : 'Fx07 - LD Vx, DT',
+        mask : 0xF0FF,
+        pattern : 0xF007,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.Registers[vx] = cpu.DT
+        }
+    },
+    {
+        mnemonic : 'Fx0A - LD Vx, K',
+        mask : 0xF0FF,
+        pattern : 0xF00A,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            let k = cpu._keyboard.GetKey()
+
+            if(k != 0) {
+                cpu.Registers[vx] = k;
+            }else {
+                cpu.Registers[vx] = 0
+                cpu.PC -= 2
+            }
+        }
+    },
+    {
+        mnemonic : 'Fx15 - LD DT, Vx',
+        mask : 0xF0FF,
+        pattern : 0xF015,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.DT = cpu.Registers[vx]
+        }
+    },
+    {
+        mnemonic : 'Fx18 - LD ST, Vx',
+        mask : 0xF0FF,
+        pattern : 0xF018,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.ST = cpu.Registers[vx]
+        }
+    },
+    {
+        mnemonic : 'Fx1E - ADD I, Vx',
+        mask : 0xF0FF,
+        pattern : 0xF01E,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.I += cpu.Registers[vx]
+        }
+    },
+    {
+        mnemonic : 'Fx29 - LD F, Vx',
+        mask : 0xF0FF,
+        pattern : 0xF029,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.I = cpu.Registers[vx] * 5
+        }
+    },
+    {
+        mnemonic : 'Fx33 - LD B, Vx',
+        mask : 0xF0FF,
+        pattern : 0xF033,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+
+            // Get the hundreds digit and place it in I.
+            cpu.Memory[cpu.I] = parseInt(cpu.Registers[vx] / 100);
+
+            // Get tens digit and place it in I+1. Gets a value between 0 and 99,
+            // then divides by 10 to give us a value between 0 and 9.
+            cpu.Memory[cpu.I+1] = parseInt((cpu.Registers[vx] % 100) / 10);
+
+            // Get the value of the ones (last) digit and place it in I+2.
+            cpu.Memory[cpu.I+2] = parseInt(cpu.Registers[vx] % 10);
+        }
+    },
+    {
+        mnemonic : 'Fx55 - LD [I], Vx',
+        mask : 0xF0FF,
+        pattern : 0xF055,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+
+            for (let i = 0; i <= vx; i++) {
+                cpu.Memory[cpu.I] = cpu.Registers[i]
+                cpu.I++
+            }
+        }
+    },
+    {
+        mnemonic : 'Fx65 - LD Vx, [I]',
+        mask : 0xF0FF,
+        pattern : 0xF065,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+
+            for (let i = 0; i <= vx; i++) {
+                cpu.Registers[i] = cpu.Memory[cpu.I]
+                cpu.I++
+            }
+        }
+    },
+
+
 
 
 ]
