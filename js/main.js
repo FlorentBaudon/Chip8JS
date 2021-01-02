@@ -20,7 +20,7 @@ function init(){
     cpu.SetDevices(renderer, keyboard)
 
     // renderer.TestRender()
-    testDraw()
+    // testDraw()
     document.querySelector('#opcodeTest').addEventListener('click', testDraw)
     requestAnimationFrame(cycle)
 }
@@ -28,7 +28,6 @@ function init(){
 function cycle() {
     var elapsedTime = clock.getElapsedTime()
     if(elapsedTime >= (1/fps)){
-
         clock.start(); //reset internal counter
         renderer.Render()
     }

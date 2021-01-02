@@ -33,7 +33,7 @@ export class Renderer {
         return !this.display[pixelIndex]
     }
 
-    //doesn't work, this.display contained only undefined values, don't know why...
+    //doesn't work, this.display contains only undefined values, don't know why...
     GetPixel(x, y) {
 
         x %= this.cols
@@ -46,6 +46,9 @@ export class Renderer {
 
     Clear() {
         this.display = new Array(this.cols * this.rows)
+        for (var i = 0; i < this.display.length; i++) {
+            this.display[i] = 0
+        }
     }
 
     Render() {
@@ -54,6 +57,7 @@ export class Renderer {
 
         // Clears the display every render cycle. Typical for a render loop.
          this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
+         console.log( " - " + this.GetPixel(0,0));
 
          // Loop through our display array
          for (let i = 0; i < this.cols * this.rows; i++) {
@@ -63,14 +67,11 @@ export class Renderer {
              // Grabs the y position of the pixel based off of `i`
              let y = Math.floor(i / this.cols) * this.scale;
 
-             // If the value at this.display[i] == 1, then draw a pixel.
-             if (this.display[i]) {
-                 // Set the pixel color to black
-                 this.ctx.fillStyle = '#000';
+             // Set the pixel color to black or white according value
+             this.ctx.fillStyle = this.display[i] ? '#000' : '#FFF';
 
-                 // Place a pixel at position (x, y) with a width and height of scale
-                 this.ctx.fillRect(x, y, this.scale, this.scale);
-             }
+             // Place a pixel at position (x, y) with a width and height of scale
+             this.ctx.fillRect(x, y, this.scale, this.scale);
          }
     }
 

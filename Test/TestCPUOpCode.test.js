@@ -288,6 +288,8 @@ test("Cxkk - RND Vx, byte - Set Vx = random byte AND kk", () => {
 
 test("Dxyn - DRW Vx, Vy, nibble - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision", () => {
     let addr = 0x0200
+    let posX = 0
+    let posY = 0
 
     cpu.Registers[0xF] = 0
 
@@ -299,21 +301,27 @@ test("Dxyn - DRW Vx, Vy, nibble - Display n-byte sprite starting at memory locat
     cpu.Memory[addr + 5] = 0xFF
 
     cpu.I = addr
-    cpu.Registers[0x1] = 0
-    cpu.Registers[0x2] = 0
+    cpu.Registers[0x1] = posX
+    cpu.Registers[0x2] = posY
 
-    cpu.ExecuteOpcode(0xD526)
+    cpu.ExecuteOpcode(0xD126)
 
     expect(cpu.Registers[0xF]).toBe(0)
 
-    // for(let x=5; x<13; x++){
-    //     for(let y=10; y<16; y++){
-    //         expect(cpu._renderer.GetPixel(x,y)).toBe(1)
-    //     }
-    // }
+    for(let x = posX; x < (posX+8); x++){
+        for(let y = posY; y < (posY+6); y++){
+            expect(cpu._renderer.GetPixel(x,y)).toBe(1)
+        }
+    }
 
     //Redraw to test xor
-    cpu.ExecuteOpcode(0xD526)
+    cpu.ExecuteOpcode(0xD126)
 
     expect(cpu.Registers[0xF]).toBe(1)
+
+    for(let x = posX; x < (posX+8); x++){
+        for(let y = posY; y < (posY+6); y++){
+            expect(cpu._renderer.GetPixel(x,y)).toBe(0)
+        }
+    }
 })
