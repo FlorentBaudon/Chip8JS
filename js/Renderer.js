@@ -14,25 +14,34 @@ export class Renderer {
         }
 
         this.display = new Array(this.cols * this.rows)
+        //init array to 0
+        for (var i = 0; i < this.display.length; i++) {
+            this.display[i] = 0
+        }
     }
 
-    SetPixel(x, y) {
-        if(x > this.cols ){
-            x -= this.cols
-        } else if (x < 0) {
-            x += this.cols
-        }
-
-        if(y > this.rows ){
-            y -= this.rows
-        } else if (y < 0) {
-            y += this.rows
-        }
+    SetPixel(x, y, value) {
+        x %= this.cols
+        y %= this.rows
 
         let pixelIndex = x + (y * this.cols)
-        this.display[pixelIndex] ^= 1
+
+        let xor = this.display[pixelIndex]^value
+
+        this.display[pixelIndex] ^= value
 
         return !this.display[pixelIndex]
+    }
+
+    //doesn't work, this.display contained only undefined values, don't know why...
+    GetPixel(x, y) {
+
+        x %= this.cols
+        y %= this.rows
+
+        let pixelIndex = x + (y * this.cols)
+
+        return this.display[pixelIndex]
     }
 
     Clear() {

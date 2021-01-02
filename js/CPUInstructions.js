@@ -196,6 +196,75 @@ const CPUInstructionsList = [
             cpu.Registers[vx] = cpu.Registers[vx] << 1
         }
     },
+    {
+        mnemonic : 'SNE Vx, Vy',
+        mask : 0xF00F,
+        pattern : 0x9000,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            let vy = (opcode & 0x00F0) >> 4
+
+            let jump = (cpu.Registers[vx] != cpu.Registers[vy]) ? 2 : 0
+            cpu.PC += jump
+        }
+    },
+    {
+        mnemonic : 'LD I, nnn',
+        mask : 0xF000,
+        pattern : 0xA000,
+        operation : (opcode, cpu) => {
+            cpu.I = opcode & 0x0FFF
+        }
+    },
+    {
+        mnemonic : 'JP V0, addr',
+        mask : 0xF000,
+        pattern : 0xB000,
+        operation : (opcode, cpu) => {
+            cpu.PC = (opcode & 0x0FFF) + cpu.Registers[0]
+        }
+    },
+    {
+        mnemonic : 'RND Vx, byte',
+        mask : 0xF000,
+        pattern : 0xC000,
+        operation : (opcode, cpu) => {
+            let mask = (opcode & 0x00FF)
+            let vx = (opcode & 0x0F00) >> 8
+            cpu.Registers[vx] = (Math.random() * 0xFF) & mask
+        }
+    },
+    {
+        mnemonic : 'DRW Vx, Vy, nibble',
+        mask : 0xF000,
+        pattern : 0xD000,
+        operation : (opcode, cpu) => {
+            let vx = (opcode & 0x0F00) >> 8
+            let vy = (opcode & 0x00F0) >> 4
+
+            let x = cpu.Registers[vx]
+            let y = cpu.Registers[vy]
+
+            let nBytes = (opcode & 0x000F)
+
+            let pointer = cpu.I
+
+            for (let i = 0; i < nBytes; i++) {
+
+                let data = cpu.Memory[pointer + i]
+
+                for (let j = 0; j < 8; j++) {
+
+                    let value = (data >> (7-j)) & 0x1
+                    let xor = cpu._renderer.SetPixel(x + j, y + i, value);
+
+                    if(xor == 1) cpu.Registers[0xF] = 1;
+
+                }
+            }
+        }
+    },
+
 
 ]
 

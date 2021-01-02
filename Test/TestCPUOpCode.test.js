@@ -239,3 +239,81 @@ test("8xyE - SHL Vx {, Vy} - Set Vx = Vx SHL 1", () => {
     expect(cpu.Registers[0xA]).toBe(48)
     expect(cpu.Registers[0xF]).toBe(1)
 })
+
+test("9xy0 - SNE Vx, Vy - Skip next instruction if Vx != Vy", () => {
+    //If value is not equal we don't skip next instruction
+    cpu.PC = 0x200
+    cpu.Registers[0x1] = 0x33
+    cpu.Registers[0xA] = 0x33
+
+    cpu.ExecuteOpcode(0x91A0)
+
+    expect(cpu.PC).toBe(0x202)
+
+    //If value is not equal we skip next instruction
+    cpu.PC = 0x200
+    cpu.Registers[0x3] = 0x31
+    cpu.Registers[0xA] = 0x33
+
+    cpu.ExecuteOpcode(0x93A0)
+
+    expect(cpu.PC).toBe(0x204)
+})
+
+test("Annn - LD I, addr - Set I = nnn", () => {
+    cpu.I = 0
+
+    cpu.ExecuteOpcode(0xA3F2)
+
+    expect(cpu.I).toBe(0x3F2)
+})
+
+test("Bnnn - JP V0, addr - Jump to location nnn + V0", () => {
+    cpu.PC = 0
+    cpu.Registers[0] = 20
+
+    cpu.ExecuteOpcode(0xB231) // addr == 561
+
+    expect(cpu.PC).toBe(581)
+})
+
+test("Cxkk - RND Vx, byte - Set Vx = random byte AND kk", () => {
+    cpu.Registers[0xA] = 0
+
+    cpu.ExecuteOpcode(0xCA0F)
+
+    expect(cpu.Registers[0xA]).not.toBe(0)
+    expect(cpu.Registers[0xA]).toBeLessThanOrEqual(15)
+})
+
+test("Dxyn - DRW Vx, Vy, nibble - Display n-byte sprite starting at memory location I at (Vx, Vy), set VF = collision", () => {
+    let addr = 0x0200
+
+    cpu.Registers[0xF] = 0
+
+    cpu.Memory[addr] = 0xFF
+    cpu.Memory[addr + 1] = 0xFF
+    cpu.Memory[addr + 2] = 0xFF
+    cpu.Memory[addr + 3] = 0xFF
+    cpu.Memory[addr + 4] = 0xFF
+    cpu.Memory[addr + 5] = 0xFF
+
+    cpu.I = addr
+    cpu.Registers[0x1] = 0
+    cpu.Registers[0x2] = 0
+
+    cpu.ExecuteOpcode(0xD526)
+
+    expect(cpu.Registers[0xF]).toBe(0)
+
+    // for(let x=5; x<13; x++){
+    //     for(let y=10; y<16; y++){
+    //         expect(cpu._renderer.GetPixel(x,y)).toBe(1)
+    //     }
+    // }
+
+    //Redraw to test xor
+    cpu.ExecuteOpcode(0xD526)
+
+    expect(cpu.Registers[0xF]).toBe(1)
+})
