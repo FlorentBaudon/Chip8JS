@@ -252,7 +252,7 @@ const CPUInstructionsList = [
 
             for (let i = 0; i < nBytes; i++) {
 
-                let data = cpu.Memory[pointer + i]
+                let data = cpu._memory[pointer + i]
 
                 for (let j = 0; j < 8; j++) {
 
@@ -357,15 +357,11 @@ const CPUInstructionsList = [
         operation : (opcode, cpu) => {
             let vx = (opcode & 0x0F00) >> 8
 
-            // Get the hundreds digit and place it in I.
-            cpu.Memory[cpu.I] = parseInt(cpu.Registers[vx] / 100);
+            cpu._memory[cpu.I] = parseInt(cpu.Registers[vx] / 100);
 
-            // Get tens digit and place it in I+1. Gets a value between 0 and 99,
-            // then divides by 10 to give us a value between 0 and 9.
-            cpu.Memory[cpu.I+1] = parseInt((cpu.Registers[vx] % 100) / 10);
+            cpu._memory[cpu.I+1] = parseInt((cpu.Registers[vx] % 100) / 10);
 
-            // Get the value of the ones (last) digit and place it in I+2.
-            cpu.Memory[cpu.I+2] = parseInt(cpu.Registers[vx] % 10);
+            cpu._memory[cpu.I+2] = parseInt(cpu.Registers[vx] % 10);
         }
     },
     {
@@ -376,7 +372,7 @@ const CPUInstructionsList = [
             let vx = (opcode & 0x0F00) >> 8
 
             for (let i = 0; i <= vx; i++) {
-                cpu.Memory[cpu.I] = cpu.Registers[i]
+                cpu._memory[cpu.I] = cpu.Registers[i]
                 cpu.I++
             }
         }
@@ -389,7 +385,7 @@ const CPUInstructionsList = [
             let vx = (opcode & 0x0F00) >> 8
 
             for (let i = 0; i <= vx; i++) {
-                cpu.Registers[i] = cpu.Memory[cpu.I]
+                cpu.Registers[i] = cpu._memory[cpu.I]
                 cpu.I++
             }
         }

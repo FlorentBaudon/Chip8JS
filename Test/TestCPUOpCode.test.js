@@ -6,7 +6,9 @@ import {Keyboard} from '../js/Keyboard.js'
 var cpu = new CPU();
 var renderer = new Renderer(10, true)
 var keyboard = new Keyboard();
-cpu.SetDevices(renderer, keyboard)
+var memory = new Uint8Array(4096)
+
+cpu.SetDevices(renderer, keyboard, memory)
 
 test("00E0 - CLS - Clear the display", () => {
     renderer.TestRender()
@@ -293,12 +295,12 @@ test("Dxyn - DRW Vx, Vy, nibble - Display n-byte sprite starting at memory locat
 
     cpu.Registers[0xF] = 0
 
-    cpu.Memory[addr] = 0xFF
-    cpu.Memory[addr + 1] = 0xFF
-    cpu.Memory[addr + 2] = 0xFF
-    cpu.Memory[addr + 3] = 0xFF
-    cpu.Memory[addr + 4] = 0xFF
-    cpu.Memory[addr + 5] = 0xFF
+    cpu._memory[addr] = 0xFF
+    cpu._memory[addr + 1] = 0xFF
+    cpu._memory[addr + 2] = 0xFF
+    cpu._memory[addr + 3] = 0xFF
+    cpu._memory[addr + 4] = 0xFF
+    cpu._memory[addr + 5] = 0xFF
 
     cpu.I = addr
     cpu.Registers[0x1] = posX
@@ -429,9 +431,9 @@ test("Fx33 - LD B, Vx - Store BCD representation of Vx in memory locations I, I+
 
     cpu.ExecuteOpcode(0xF233)
 
-    expect(cpu.Memory[0x300]).toBe(1)
-    expect(cpu.Memory[0x301]).toBe(2)
-    expect(cpu.Memory[0x302]).toBe(3)
+    expect(cpu._memory[0x300]).toBe(1)
+    expect(cpu._memory[0x301]).toBe(2)
+    expect(cpu._memory[0x302]).toBe(3)
 })
 
 test("Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at location I", () => {
@@ -445,11 +447,11 @@ test("Fx55 - LD [I], Vx - Store registers V0 through Vx in memory starting at lo
     cpu.ExecuteOpcode(0xF455)
 
     expect(cpu.I).toBe(0x300 + 5)
-    expect(cpu.Memory[0x300]).toBe(6)
-    expect(cpu.Memory[0x301]).toBe(68)
-    expect(cpu.Memory[0x302]).toBe(213)
-    expect(cpu.Memory[0x303]).toBe(100)
-    expect(cpu.Memory[0x304]).toBe(128)
+    expect(cpu._memory[0x300]).toBe(6)
+    expect(cpu._memory[0x301]).toBe(68)
+    expect(cpu._memory[0x302]).toBe(213)
+    expect(cpu._memory[0x303]).toBe(100)
+    expect(cpu._memory[0x304]).toBe(128)
 })
 
 test("Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at location I.", () => {
@@ -460,11 +462,11 @@ test("Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at l
     cpu.Registers[0x4] = 0
 
     cpu.I = 0x300
-    cpu.Memory[0x300] = 6
-    cpu.Memory[0x301] = 68
-    cpu.Memory[0x302] = 213
-    cpu.Memory[0x303] = 100
-    cpu.Memory[0x304] = 128
+    cpu._memory[0x300] = 6
+    cpu._memory[0x301] = 68
+    cpu._memory[0x302] = 213
+    cpu._memory[0x303] = 100
+    cpu._memory[0x304] = 128
 
     cpu.ExecuteOpcode(0xF465)
 
@@ -474,6 +476,4 @@ test("Fx65 - LD Vx, [I] - Read registers V0 through Vx from memory starting at l
     expect(cpu.Registers[0x2]).toBe(213)
     expect(cpu.Registers[0x3]).toBe(100)
     expect(cpu.Registers[0x4]).toBe(128)
-
-
 })

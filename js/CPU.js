@@ -2,7 +2,6 @@ import {CPUInstructionsList} from './CPUInstructions.js'
 
 export class CPU {
     constructor () {
-        this.Memory = new Uint8Array(4096)
         this.PC = 0x200 //Program counter, range 0x000 to 0x1FF is reserved
         this.Registers = new Uint8Array(16) // Chip 8 have 16  8bits registers (V0 to VF)
         this.I = 0 //16bit register used as memory address pointer
@@ -15,11 +14,13 @@ export class CPU {
         /** Devices **/
         this._renderer = null
         this._keyboard = null
+        this._memory = null
     }
     //Setting devices ref like renderer, keyboard, audio etc...
-    SetDevices(renderer, keyboard){
+    SetDevices(renderer, keyboard, memory){
         this._renderer = renderer
         this._keyboard = keyboard
+        this._memory = memory
     }
     ExecuteOpcode (opcode) {
         this.PC += 2 // 16 bits jump
@@ -27,6 +28,7 @@ export class CPU {
         //Find instruction in list according to opcode pattern
         let instruction = CPUInstructionsList.find( e =>  (opcode & e.mask) == e.pattern)
 
+        console.log(opcode.toString(16) + " - " + instruction.mnemonic);
         //Execute instruction of finded opcode
         instruction.operation(opcode, this)
     }
