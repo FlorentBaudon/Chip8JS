@@ -22,13 +22,18 @@ export class CPU {
         this._keyboard = keyboard
         this._memory = memory
     }
+
+    GetOpcodeDetail(opcode) {
+        let instruction = CPUInstructionsList.find( e =>  (opcode & e.mask) == e.pattern)
+
+        console.log("addr: " + (this.PC-0x200).toString(16) + " - "+ opcode.toString(16) + " - " + instruction.mnemonic);
+    }
+
     ExecuteOpcode (opcode) {
         this.PC += 2 // 16 bits jump
 
         //Find instruction in list according to opcode pattern
         let instruction = CPUInstructionsList.find( e =>  (opcode & e.mask) == e.pattern)
-
-        console.log(opcode.toString(16) + " - " + instruction.mnemonic);
         //Execute instruction of finded opcode
         instruction.operation(opcode, this)
     }

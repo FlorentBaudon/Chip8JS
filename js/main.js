@@ -3,7 +3,9 @@ import {CPU} from './CPU.js'
 import {Renderer} from './Renderer.js'
 import {Keyboard} from './Keyboard.js'
 
-var fps = 10
+import {CPUInstructionsList} from './CPUInstructions.js'
+
+var fps = 120
 
 var cpu
 var renderer
@@ -51,8 +53,15 @@ function cycle() {
     if(elapsedTime >= (1/fps)){
         clock.start(); //reset internal counter
 
+        //Update delay timer
+        if(cpu.DT > 0) cpu.DT -= 1;
+
         //Read current instrucitons in memory
         let opcode = (cpu._memory[cpu.PC] << 8) | cpu._memory[cpu.PC+1]
+
+        //Log opcode details
+        // cpu.GetOpcodeDetail(opcode)
+
         //Execute the instructions (Program Counter will be incremented by 2)
         cpu.ExecuteOpcode(opcode)
         //Render the display
