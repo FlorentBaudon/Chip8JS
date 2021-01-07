@@ -2,13 +2,15 @@ import {Clock} from './Clock.js'
 import {CPU} from './CPU.js'
 import {Renderer} from './Renderer.js'
 import {Keyboard} from './Keyboard.js'
+import {Audio} from './Audio.js'
 
 import {CPUInstructionsList} from './CPUInstructions.js'
 
-var fps = 120
+var fps = 60
 
 var cpu
 var renderer
+var audio
 var keyboard
 var memory
 var clock
@@ -20,13 +22,14 @@ function init(){
 
     clock = new Clock()
     renderer = new Renderer(10)
-    keyboard = new Keyboard();
+    keyboard = new Keyboard()
     memory = new Uint8Array(4096)
+    audio = new Audio()
 
     cpu.SetDevices(renderer, keyboard, memory)
 
     loadFonts()
-    loadRomInMemory('./Roms/blitz.rom')
+    loadRomInMemory('./Roms/pong.rom')
 
     window.addEventListener('keyup', OnKeyUp.bind(this), false)
 
@@ -91,20 +94,28 @@ function cycle() {
             let opcode = (cpu._memory[cpu.PC] << 8) | cpu._memory[cpu.PC+1]
 
             //Log opcode details
-            cpu.GetOpcodeDetail(opcode)
+            // cpu.GetOpcodeDetail(opcode)
 
             //Execute the instructions (Program Counter will be incremented by 2)
             cpu.ExecuteOpcode(opcode)
         }
         //Render the display
         renderer.Render()
+
+        if(cpu.ST > 0) {
+            audio.play()
+        }else {
+            audio.stop()
+        }
     }
     requestAnimationFrame(cycle)
 }
 
 /** Testing functions **/
 function OnKeyUp(event) {
-    if(event.which == 32) { paused = !paused }
+    if(event.which == 32) {
+        paused = !paused
+    }
 }
 
 function testDraw() {
