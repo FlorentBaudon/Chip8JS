@@ -25,12 +25,39 @@ function init(){
 
     cpu.SetDevices(renderer, keyboard, memory)
 
-    loadRomInMemory('./Roms/pong.rom')
+    loadFonts()
+    loadRomInMemory('./Roms/blitz.rom')
 
     window.addEventListener('keyup', OnKeyUp.bind(this), false)
 
     requestAnimationFrame(cycle)
 }
+
+function loadFonts() {
+    var fonts = [
+        0xF0, 0x90, 0x90, 0x90, 0xF0, // 0
+        0x20, 0x60, 0x20, 0x20, 0x70, // 1
+        0xF0, 0x10, 0xF0, 0x80, 0xF0, // 2
+        0xF0, 0x10, 0xF0, 0x10, 0xF0, // 3
+        0x90, 0x90, 0xF0, 0x10, 0x10, // 4
+        0xF0, 0x80, 0xF0, 0x10, 0xF0, // 5
+        0xF0, 0x80, 0xF0, 0x90, 0xF0, // 6
+        0xF0, 0x10, 0x20, 0x40, 0x40, // 7
+        0xF0, 0x90, 0xF0, 0x90, 0xF0, // 8
+        0xF0, 0x90, 0xF0, 0x10, 0xF0, // 9
+        0xF0, 0x90, 0xF0, 0x90, 0x90, // A
+        0xE0, 0x90, 0xE0, 0x90, 0xE0, // B
+        0xF0, 0x80, 0x80, 0x80, 0xF0, // C
+        0xE0, 0x90, 0x90, 0x90, 0xE0, // D
+        0xF0, 0x80, 0xF0, 0x80, 0xF0, // E
+        0xF0, 0x80, 0xF0, 0x80, 0x80  // F
+    ]
+
+    for(let i=0; i<fonts.length; i++){
+        memory[i] = fonts[i]
+    }
+}
+
 
 function loadRomInMemory(path) {
 
@@ -53,17 +80,22 @@ function cycle() {
     if(elapsedTime >= (1/fps)){
         clock.start(); //reset internal counter
 
+        /* Move in CPU */
         //Update delay timer
         if(cpu.DT > 0) cpu.DT -= 1;
+        if(cpu.ST > 0) cpu.ST -= 1;
 
-        //Read current instrucitons in memory
-        let opcode = (cpu._memory[cpu.PC] << 8) | cpu._memory[cpu.PC+1]
+        for(let i=0; i<1; i++){
 
-        //Log opcode details
-        // cpu.GetOpcodeDetail(opcode)
+            //Read current instrucitons in memory
+            let opcode = (cpu._memory[cpu.PC] << 8) | cpu._memory[cpu.PC+1]
 
-        //Execute the instructions (Program Counter will be incremented by 2)
-        cpu.ExecuteOpcode(opcode)
+            //Log opcode details
+            cpu.GetOpcodeDetail(opcode)
+
+            //Execute the instructions (Program Counter will be incremented by 2)
+            cpu.ExecuteOpcode(opcode)
+        }
         //Render the display
         renderer.Render()
     }

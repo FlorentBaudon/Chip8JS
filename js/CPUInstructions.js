@@ -257,9 +257,12 @@ const CPUInstructionsList = [
                 for (let j = 0; j < 8; j++) {
 
                     let value = (data >> (7-j)) & 0x1
-                    let xor = cpu._renderer.SetPixel(x + j, y + i, value);
 
-                    if(xor == 1) cpu.Registers[0xF] = 1;
+                    if(value != 0){
+                        let xor = cpu._renderer.SetPixel(x + j, y + i);
+
+                        if(xor == 1) cpu.Registers[0xF] = 1;
+                    }
 
                 }
             }

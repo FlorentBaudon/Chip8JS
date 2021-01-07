@@ -20,15 +20,15 @@ export class Renderer {
         }
     }
 
-    SetPixel(x, y, value) {
+    SetPixel(x, y) {
         x %= this.cols
-        y %= this.rows
+        y %= this.rows+1
 
         let pixelIndex = x + (y * this.cols)
 
-        let xor = this.display[pixelIndex]^value
+        let xor = this.display[pixelIndex]^1
 
-        this.display[pixelIndex] ^= value
+        this.display[pixelIndex] ^= 1
 
         return !this.display[pixelIndex]
     }
