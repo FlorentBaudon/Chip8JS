@@ -8,7 +8,7 @@ export class Audio {
 		this.gain.connect(finish)
     }
 
-    play(freq=440) {
+    Play(freq=440) {
         if (!this.oscillator) {
             this.oscillator = this.audioCtx.createOscillator()
 
@@ -21,7 +21,7 @@ export class Audio {
         }
     }
 
-    stop() {
+    Stop() {
         if (this.oscillator) {
             this.oscillator.stop()
             this.oscillator.disconnect()
