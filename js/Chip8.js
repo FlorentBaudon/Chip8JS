@@ -9,11 +9,11 @@ import {CPUInstructionsList} from './CPUInstructions.js'
 
 export class Chip8 {
 
-    constructor() {
+    constructor(debug = false, fps = 60) {
 
-        this.fps = 60
+        this.fps = fps
 
-        this.cpu = new CPU()
+        this.cpu = new CPU(debug)
 
         this.clock = new Clock()
         this.renderer = new Renderer(10)
@@ -21,7 +21,7 @@ export class Chip8 {
         this.memory = new Uint8Array(4096)
         this.audio = new Audio()
 
-        this.paused = false;
+        this.paused = false
 
         this.cpu.SetDevices(this.renderer, this.keyboard, this.memory)
 
@@ -77,8 +77,10 @@ export class Chip8 {
     }
 
     Cycle() {
-        if(this.paused)
+        if(this.paused){
+            requestAnimationFrame(this.Cycle.bind(this))
             return;
+        }
 
         var elapsedTime = this.clock.getElapsedTime()
         if(elapsedTime >= (1/this.fps)){

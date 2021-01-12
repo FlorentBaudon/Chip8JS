@@ -6,10 +6,12 @@ export class Audio {
 
 		let finish = this.audioCtx.destination
 		this.gain.connect(finish)
+
+		this.mute = false
     }
 
     Play(freq=440) {
-        if (!this.oscillator) {
+        if (!this.oscillator && !this.mute) {
             this.oscillator = this.audioCtx.createOscillator()
 
 
@@ -28,4 +30,8 @@ export class Audio {
             this.oscillator = null
         }
     }
+
+	ToggleMute() {
+		this.mute = !this.mute
+	}
 }
